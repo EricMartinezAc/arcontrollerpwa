@@ -26,9 +26,9 @@ export default function ValideCookies(route, cookies) {
     //--- si estoy en logeo y encuentra un token retorne true y lleveme a App
     if (route === "Singin" && typeof cookies.get("token") !== "undefined") {
       resp.value = true;
-      resp.msj = "Ya se encuentra una sesión activa";
+      resp.msj = "Será redireccionado..";
       resp.routeTarjet =
-        "https://arcontroller-front.vercel.app/acrcontroller/web/main/Dashboard";
+        "https://arcontroller-front.vercel.app/arcontroller/web/main/Dashboard";
     }
 
     //--- si estoy en Inicio y ya se encuentra una sesión activa? me envía a dashboard

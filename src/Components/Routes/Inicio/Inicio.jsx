@@ -10,7 +10,7 @@ import Header from "./Partials/Header/Header";
 import Main from "./Partials/Main/Main";
 import Aside from "./Partials/Aside/Aside";
 import AlertCookies from "../Comun/Politicas/cookies/AlertCookies";
-import Footer from "./Partials/Footer/Footer";
+import Footer from "../Comun/Footer/Footer";
 
 //funcionaidades
 import Cookies from "universal-cookie";
@@ -24,7 +24,7 @@ import { WindPower } from "@mui/icons-material";
 import PropTypes from "prop-types";
 
 function Inicio(props) {
-  //window loading
+  //window loading and alert
   const [stateLoading, setStateLoading] = useState("none");
   const [AlertDialogs, setAlertDialogs] = useState(["none", "", "", "", ""]);
   //legacy cookies

@@ -33,7 +33,7 @@ function App(props) {
             <Route path="/singin" element={<Singin_ />}></Route>
             <Route
               usuario
-              path="/acrcontroller/web/main/Dashboard"
+              path="/arcontroller/web/main/Dashboard"
               element={<Dashboard_ />}
             ></Route>
           </Routes>
