@@ -16,6 +16,12 @@ import ValideCookies from "../../Comun/ModulosSis/ValideCookies";
 import ReqResDatos_auth_API from "../../Comun/ModulosSis/class_authAPI";
 //import RestarApp from '../../Comun/ModulosSis/RestarApp';
 
+import {
+  ValideInputPassword,
+  ValideInputEmail,
+  ValideInputUsuario,
+} from "../../Comun/ModulosSis/ValideInputREGEXP";
+
 import Login from "./Login/Login";
 import Registro from "./Login/Registro";
 import DescriptionAlerts from "../../Comun/DescriptionAlerts";
@@ -31,12 +37,10 @@ function Singin(props) {
   //window loading and alert
   const [stateLoading, setStateLoading] = useState("none");
   const [AlertDialogs, setAlertDialogs] = useState(["none", "", "", "", ""]);
-  useEffect(() => {
-    setTimeout(() => {
-      setStateLoading("none");
-      setAlertDialogs(["none", "", "", "", ""]);
-    }, 6000);
-  }, [stateLoading, AlertDialogs]);
+  const resetWindowsAlertLoading = () => {
+    setStateLoading("none");
+    setAlertDialogs(["none", "", "", "", ""]);
+  };
   //validar cookies previo
   const rspValideCookies = ValideCookies("Singin", cookies);
   //valide aceptación de politicas
@@ -64,6 +68,7 @@ function Singin(props) {
         "Sesión activa.",
         rspValideCookies.msj,
       ]);
+      resetWindowsAlertLoading();
       setTimeout(() => {
         setStateLoading("block");
         setTimeout(() => {
@@ -72,7 +77,14 @@ function Singin(props) {
       }, 6000);
     }
   }, []);
-  //
+  //valide forms
+  const ValidacionFormAuth = (user, pswLogin, idProd) => {
+    return ValideInputUsuario(user) &&
+      ValideInputPassword(pswLogin) &&
+      ValideInputPassword(idProd)
+      ? true
+      : false;
+  };
 
   return (
     <Grid
@@ -128,20 +140,34 @@ function Singin(props) {
         xs={12}
       >
         {/* RGTR */}
-        {/* <Box
+        <Box
           sx={{
             display: visibleFormAuth ? "none" : "true",
           }}
         >
-          <Registro />
-        </Box> */}
+          <Registro
+            ValidacionFormAuth={ValidacionFormAuth}
+            stateLoading={stateLoading}
+            setStateLoading={setStateLoading}
+            AlertDialogs={AlertDialogs}
+            setAlertDialogs={setAlertDialogs}
+            resetWindowsAlertLoading={resetWindowsAlertLoading}
+          />
+        </Box>
         {/* LOGIN */}
         <Box
           sx={{
             display: visibleFormAuth ? "true" : "none",
           }}
         >
-          <Login />
+          <Login
+            ValidacionFormAuth={ValidacionFormAuth}
+            stateLoading={stateLoading}
+            setStateLoading={setStateLoading}
+            AlertDialogs={AlertDialogs}
+            setAlertDialogs={setAlertDialogs}
+            resetWindowsAlertLoading={resetWindowsAlertLoading}
+          />
         </Box>
       </Grid>
       {/* Handle visible forms */}
@@ -171,8 +197,8 @@ function Singin(props) {
               ? "Si desea incorporar un nuevo usuario"
               : "Inicie sesión con usuario registrado"}
             <Link
-              sx={{ marginLeft: "5px" }}
-              // onClick={CambiarVisibleFormAuth}
+              sx={{ marginLeft: "5px", cursor: "pointer" }}
+              onClick={() => setVisibleFormAuth(!visibleFormAuth)}
             >
               clic aquí
             </Link>

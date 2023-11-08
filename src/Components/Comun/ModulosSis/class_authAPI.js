@@ -1,89 +1,90 @@
-import pages from '../../../const/pages'
+import pages from "../../../const/pages";
 
 export default class ReqResDatos_auth_API {
-  constructor () {
-    this.user = ''
-    this.pswLogin = ''
-    this.id_prod = ''
-    this.clav_prodct = ''
+  constructor() {
+    this.user = "";
+    this.pswLogin = "";
+    this.id_prod = "";
+    this.clav_prodct = "";
+    this.rol = "";
   }
 
-  SetDatsToAPI = async (user_, pswLogin_, id_prod_, clav_prodct_) => {
-    this.user = user_
-    this.pswLogin = pswLogin_
-    this.id_prod = id_prod_
-    this.clav_prodct = clav_prodct_
-    return await true
-  }
+  SetDatsToAPI = (user_, pswLogin_, id_prod_, clav_prodct_, rol_) => {
+    this.user = user_;
+    this.pswLogin = pswLogin_;
+    this.id_prod = id_prod_;
+    this.clav_prodct = clav_prodct_;
+    this.rol = rol_;
+  };
 
   GetDatosAuth = async () => {
     return await {
       user: this.user,
       pswLogin: this.pswLogin,
       id_prod: this.id_prod,
-      clav_prodct: this.clav_prodct
-    }
-  }
+      clav_prodct: this.clav_prodct,
+      rol: this.rol,
+    };
+  };
 
   SendDatsAPI = async (proceso, axios) => {
     console.log(
       `solicitando credenciales para ${this.user} en ${this.id_prod}: ${proceso} `
-    )
-    const path_API = `${pages.remoteAPI}/api/arcontroller/users/${proceso}`
+    );
+    const path_API = `${pages.localAPI}/api/arcontroller/users/${proceso}`;
 
-    const datos = await this.GetDatosAuth()
-    console.log(datos, 'enviando...')
+    const datos = await this.GetDatosAuth();
+    console.log(datos, "enviando...");
     try {
       return fetch(path_API, {
-        method: 'POST',
-        mode: 'cors',
+        method: "POST",
+        mode: "cors",
         headers: {
-          'Content-Type': 'application/json',
-          'access-control-allow-origin': '*'
+          "Content-Type": "application/json",
+          "access-control-allow-origin": "*",
         },
         body: JSON.stringify({
           process_: proceso,
-          datos_: datos
-        })
+          datos_: datos,
+        }),
       })
-        .then(res => res.json())
-        .then(data => {
-          console.log(data)
-          return data
-        })
+        .then((res) => res.json())
+        .then((data) => {
+          return data;
+        });
     } catch (error) {
-      return null
+      alert(`${error}`);
     }
-  }
+  };
 
   GetAPP = async (auth1, axios) => {
-    console.log(`transfiriendo a APP`)
+    console.log(`transfiriendo a APP`);
 
     await axios
       .get(`${pages.remoteAPI}/api/arcontroller/app/dashboard`, {
         headers: {
-          autorization: `Bearer ${auth1}`
-        }
+          autorization: `Bearer ${auth1}`,
+        },
       })
-      .then(resp => {
-        console.log(resp.data.valor)
+      .then((resp) => {
+        console.log(resp.data.valor);
         setTimeout(() => {
           if (resp.data.valor === 100) {
-            window.location = `${pages.this}/acrcontroller/web/main/Dashboard`
+            window.location = `${pages.this}/acrcontroller/web/main/Dashboard`;
           } else {
-            alert(resp.data.msj)
-            window.location = `${pages.this}`
+            alert(resp.data.msj);
+            window.location = `${pages.this}`;
           }
-        }, 300)
+        }, 300);
       })
-      .catch(err => {
-        alert('Error en generación de token:', err)
+      .catch((err) => {
+        alert("Error en generación de token:", err);
         setTimeout(() => {
-          window.location = `${pages.this}`
-        }, 300)
-        console.error('Error :', err)
-      })
-  }
+          window.location = `${pages.this}`;
+        }, 300);
+        console.error("Error :", err);
+      });
+  };
 
   // SetConexionAPI = () => {
   //     ws.onopen = () => {|

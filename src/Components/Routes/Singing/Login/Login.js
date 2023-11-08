@@ -13,11 +13,6 @@ import ReqResDatos_auth_API from "../../../Comun/ModulosSis/class_authAPI";
 //import RestartApp from '../../../Comun/ModulosSis/RestarApp'
 
 //métodos
-import {
-  ValideInputPassword,
-  ValideInputEmail,
-  ValideInputUsuario,
-} from "../../../Comun/ModulosSis/ValideInputREGEXP";
 import { AsigneCookies } from "../../../Comun/ModulosSis/AsigneCookies";
 
 import PropTypes from "prop-types";
@@ -39,6 +34,70 @@ function Login(props) {
     if (input === "user") setUser(e.target.value);
     if (input === "pswLogin") setPswLogin(e.target.value);
     console.log(input, e.target.value);
+  };
+  const EnviarDatosReg = async (e) => {
+    e.preventDefault();
+    if (props.ValidacionFormAuth(user, pswLogin, idProd)) {
+      props.setStateLoading(true);
+      try {
+        //Datos a consultar
+        await reqResDatos_auth_API.SetDatsToAPI(
+          user,
+          pswLogin,
+          idProd,
+          clavProdct,
+          PO_ ? "PO" : "PM"
+        );
+        console.log(
+          "Preparación de usuario completa: ",
+          await reqResDatos_auth_API.GetDatosAuth()
+        );
+        //envio de datos
+        await setTimeout(async () => {
+          let RespAPI = await reqResDatos_auth_API.SendDatsAPI("auth", axios);
+          console.log(RespAPI);
+          if (RespAPI.valor === 400) {
+            props.setAlertDialogs([
+              "block",
+              "info",
+              "Respuesta de servidor",
+              "->",
+              RespAPI.msj,
+            ]);
+            // await AsigneCookies("token", RespAPI.respt, cookies);
+            // await AsigneCookies("id_prod", id_prod, cookies);
+            // await AsigneCookies("user", user, cookies);
+            // console.log("====================================");
+            // console.log("redireccionando...");
+            // console.log("====================================");
+            // await reqResDatos_auth_API.GetAPP(RespAPI.respt, axios);
+          } else {
+            props.setAlertDialogs([
+              "block",
+              "error",
+              "Respuesta de servidor",
+              "->",
+              RespAPI.msj,
+            ]);
+          }
+
+          setTimeout(() => {
+            props.resetWindowsAlertLoading();
+          }, 6000);
+        }, 2000);
+      } catch (error) {
+        alert("error enviando datos al servidor, revise su conexion: " + error);
+        console.log(
+          "error enviando datos al servidor, revise su conexion: ",
+          error
+        );
+      }
+    } else {
+      alert("Datos ingresados no cumplen requerimientos");
+      setTimeout(() => {
+        window.location = "http://localhost:3000/Singin";
+      }, 5000);
+    }
   };
 
   return (
@@ -64,19 +123,16 @@ function Login(props) {
           value={idProd}
           onChange={Onchange}
         />
-
-        <Box sx={{ display: PO_ ? "inherit" : "none" }}>
-          <input
-            type="text"
-            name="clavProdct"
-            id="clavProdct"
-            className="form-control input_text_index"
-            autoComplete="off"
-            placeholder="INGRESE CLAVE DE PRODUCTO"
-            value={clavProdct}
-            onChange={Onchange}
-          />
-        </Box>
+        <input
+          type="text"
+          name="clavProdct"
+          id="clavProdct"
+          className="form-control input_text_index"
+          autoComplete="off"
+          placeholder="INGRESE CLAVE DE PRODUCTO"
+          value={clavProdct}
+          onChange={Onchange}
+        />
         <input
           type="text"
           id="user"
@@ -111,7 +167,12 @@ function Login(props) {
         <br />
         <br />
         <br />
-        <input className="btn btn-success" type="submit" value="CONTINUAR" />
+        <input
+          className="btn btn-success"
+          type="submit"
+          value="CONTINUAR"
+          onClick={EnviarDatosReg}
+        />
         <br />
       </form>{" "}
       <br />
@@ -123,87 +184,10 @@ Login.propTypes = {};
 
 export default Login;
 
-// export default class Login extends Component {
-//   constructor (props) {
-//     super(props)
-//     state = {
-
-//     }
-//   }
-
-//   CambiarEstadoDescriptionAlerts = props.CambiarEstadoDescriptionAlerts
-//   CambiarEstadoLoading = props.CambiarEstadoLoading
-
-//   ValidacionFormAuth = () => {
-//     return ValideInputUsuario(user) &&
-//       ValideInputPassword(pswLogin) &&
-//       ValideInputPassword(id_prod)
-//       ? true
-//       : false
-//   }
-
-//   EnviarDatosAuth = async e => {
-//     e.preventDefault()
-
-//     CambiarEstadoLoading()
-//     if (ValidacionFormAuth()) {
-//       try {
-//         //Datos a consultar
-//         await reqResDatos_auth_API.SetDatsToAPI(
-//           user,
-//           pswLogin,
-//           id_prod,
-//           PO_ ? clav_prodct : 'PM'
-//         )
-//         await console.log('Preparación de usuario completa')
-
-//         //envio de datos
-//         await setTimeout(async () => {
-//           let RespAPI = await reqResDatos_auth_API.SendDatsAPI('auth', axios)
-//           if ((await RespAPI) === null || (await RespAPI) === undefined) {
-//             //RestartApp()
-//             alert('no se obtubo respuesta del servidor')
-//           } else {
-//             if (RespAPI.valor === 400) {
-//               await AsigneCookies('token', RespAPI.respt, cookies)
-//               await AsigneCookies('id_prod', id_prod, cookies)
-//               await AsigneCookies('user', user, cookies)
-//               console.log('====================================')
-//               console.log('redireccionando...')
-//               console.log('====================================')
-//               await reqResDatos_auth_API.GetAPP(RespAPI.respt, axios)
-//             } else {
-//               await CambiarEstadoDescriptionAlerts(
-//                 true,
-//                 'warning',
-//                 'AUTENTICACIÓN DE USUARIO',
-//                 'Recuerda limpiar las cookies de tu browser y tener control sobre ellas. ',
-//                 RespAPI.msj
-//               )
-//             }
-//           }
-//           await CambiarEstadoLoading()
-//         }, 2000)
-//       } catch (error) {
-//         alert('error enviando datos al servidor, revise su conexion: ' + error)
-//         console.log(
-//           'error enviando datos al servidor, revise su conexion: ',
-//           error
-//         )
-//       }
-//     } else {
-//       alert('Datos ingresados no cumplen requerimientos')
-//       setTimeout(() => {
-//         window.location = 'http://localhost:3000/Singin'
-//       }, 5000)
-//     }
-//   }
-
-//
-
-//   render () {
-//     return (
-
-//     )
-//   }
-// }
+// await AsigneCookies('token', RespAPI.respt, cookies)
+// //               await AsigneCookies('id_prod', id_prod, cookies)
+// //               await AsigneCookies('user', user, cookies)
+// //               console.log('====================================')
+// //               console.log('redireccionando...')
+// //               console.log('====================================')
+// //               await reqResDatos_auth_API.GetAPP(RespAPI.respt, axios)

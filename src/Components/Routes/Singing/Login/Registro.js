@@ -1,101 +1,96 @@
-import React, { Component } from 'react'
+import { React, useState } from "react";
 
 //librerias
-import Cookies from 'universal-cookie'
-import { Box, FormControlLabel, Hidden, Link, Switch } from '@mui/material'
-import axios from 'axios'
-import * as XLSX from 'xlsx'
+import Cookies from "universal-cookie";
+import { Box, FormControlLabel, Hidden, Link, Switch } from "@mui/material";
+import axios from "axios";
+//import * as XLSX from "xlsx";
 
 //recursos
-import Logo from '../../../../Assets/Imgs/logos/logo_632x512.png'
-import './Login.css'
-import ReqResDatos_auth_API from '../../../Comun/ModulosSis/class_authAPI'
-import Loading from '../../../Comun/Loading'
-import AlertDialogs from '../../../Comun/DescriptionAlerts'
+import Logo from "../../../../Assets/Imgs/logos/logo_632x512.png";
+import "./Login.css";
+import ReqResDatos_auth_API from "../../../Comun/ModulosSis/class_authAPI";
+//import RestarApp from "../../../Comun/ModulosSis/RestarApp";
 
 //métodos
-import {
-  ValideInputPassword,
-  ValideInputEmail,
-  ValideInputUsuario
-} from '../../../Comun/ModulosSis/ValideInputREGEXP'
-import { AsigneCookies } from '../../../Comun/ModulosSis/AsigneCookies'
+import { AsigneCookies } from "../../../Comun/ModulosSis/AsigneCookies";
 
-const cookies = new Cookies()
-const reqResDatos_auth_API = new ReqResDatos_auth_API()
+import PropTypes from "prop-types";
 
-export default class Registro extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      //formulario
-      id_prod: '',
-      clav_prodct: '',
-      user: '',
-      pswLogin: '',
-      PO_: true
-    }
-  }
+const cookies = new Cookies();
+const reqResDatos_auth_API = new ReqResDatos_auth_API();
 
-  CambiarEstadoDescriptionAlerts = this.props.CambiarEstadoDescriptionAlerts
-  CambiarEstadoLoading = this.props.CambiarEstadoLoading
-
-  ValidacionFormAuth = () => {
-    return ValideInputUsuario(this.state.user) &&
-      ValideInputPassword(this.state.pswLogin) &&
-      ValideInputPassword(this.state.id_prod)
-      ? true
-      : false
-  }
-
-  EnviarDatosReg = async e => {
-    e.preventDefault()
-
-    this.CambiarEstadoLoading()
-    if (this.ValidacionFormAuth()) {
+function Registro(props) {
+  //formulario
+  const [idProd, setIdProd] = useState("");
+  const [clavProdct, setClavProdct] = useState("");
+  const [user, setUser] = useState("");
+  const [pswLogin, setPswLogin] = useState("");
+  const [PO_, setPO_] = useState(false);
+  const Onchange = (e) => {
+    const input = e.target.name;
+    if (input === "idProd") setIdProd(e.target.value);
+    if (input === "clavProdct") setClavProdct(e.target.value);
+    if (input === "user") setUser(e.target.value);
+    if (input === "pswLogin") setPswLogin(e.target.value);
+    console.log(input, e.target.value);
+  };
+  const EnviarDatosReg = async (e) => {
+    e.preventDefault();
+    if (props.ValidacionFormAuth(user, pswLogin, idProd)) {
+      props.setStateLoading(true);
       try {
         //Datos a consultar
         await reqResDatos_auth_API.SetDatsToAPI(
-          this.state.user,
-          this.state.pswLogin,
-          this.state.id_prod,
-          this.state.PO_ ? this.state.clav_prodct : 'PM'
-        )
-        await console.log('Preparación de usuario completa')
+          user,
+          pswLogin,
+          idProd,
+          clavProdct,
+          PO_ ? "PO" : "PM"
+        );
+        console.log("Preparación de usuario completa");
+        console.log(await reqResDatos_auth_API.GetDatosAuth());
 
-        //envio de datos
+        // //envio de datos
         await setTimeout(async () => {
-          let RespAPI = await reqResDatos_auth_API.SendDatsAPI('regtr', axios)
-          if (RespAPI === null) {
-            //RestartApp()
-            alert('no se obtubo respuesta del servidor')
+          let RespAPI = await reqResDatos_auth_API.SendDatsAPI("regtr", axios);
+          console.log(RespAPI);
+          if (RespAPI.valor === 300) {
+            props.setAlertDialogs([
+              "block",
+              "info",
+              "Respuesta de servidor",
+              "->",
+              RespAPI.msj,
+            ]);
+          } else {
+            props.setAlertDialogs([
+              "block",
+              "error",
+              "Respuesta de servidor",
+              "->",
+              RespAPI.msj,
+            ]);
           }
-          await this.CambiarEstadoLoading()
-          await this.CambiarEstadoDescriptionAlerts(
-            true,
-            RespAPI.valor === 300 ? 'success' : 'warning',
-            'REGISTRO DE USUARIO',
-            'Recuerda limpiar las cookies de tu browser y tener control sobre ellas. ',
-            RespAPI.msj
-          )
+
           setTimeout(() => {
-            window.location = `http://localhost:3000/Singin`
-          }, 4000)
-        }, 2000)
+            props.resetWindowsAlertLoading();
+          }, 6000);
+        }, 2000);
       } catch (error) {
-        alert('error enviando datos al servidor, revise su conexion: ' + error)
+        alert("error enviando datos al servidor, revise su conexion: " + error);
         console.log(
-          'error enviando datos al servidor, revise su conexion: ',
+          "error enviando datos al servidor, revise su conexion: ",
           error
-        )
+        );
       }
     } else {
-      alert('Datos ingresados no cumplen requerimientos')
+      alert("Datos ingresados no cumplen requerimientos");
       setTimeout(() => {
-        window.location = 'http://localhost:3000/Singin'
-      }, 5000)
+        window.location = "http://localhost:3000/Singin";
+      }, 5000);
     }
-  }
+  };
 
   // TransformDataExcelToJSON = (refFile) => {
   //     const promise = new Promise((resolve, reject) => {
@@ -117,100 +112,94 @@ export default class Registro extends Component {
   //     });
 
   //     promise.then((result) => {
-  //         this.setState({
+  //         setState({
   //             fileDatas: result,
   //         });
   //     });
 
   // }
 
-  Onchange = e => {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
+  return (
+    <Box
+      sx={{
+        display: "block",
+        padding: "0 auto",
+        margin: "0 auto",
+        textAlign: "center",
+        color: "#232",
+      }}
+    >
+      <img alt="logo" className="logo" src={Logo} />
 
-    // if (e.target.name === 'fileInput') {
-    //     this.TransformDataExcelToJSON(e.target.files[0])
-    // }
-  }
+      <h3 className="title">REGISTRO</h3>
 
-  handleChangeSwitch = () => this.setState({ PO_: !this.state.PO_ })
-
-  render () {
-    return (
-      <Box
-        sx={{
-          display: 'block',
-          padding: '0 auto',
-          margin: '0 auto',
-          textAlign: 'center',
-          color: '#232'
-        }}
-      >
-        <img alt='logo' className='logo' src={Logo} />
-
-        <h3 className='title'>REGISTRO</h3>
-
-        <form className='FormAuth' onSubmit={this.EnviarDatosReg}>
+      <form className="FormAuth" onSubmit={() => console.log("datos")}>
+        <input
+          type="text"
+          name="idProd"
+          id="idProd"
+          className="form-control input_text_index"
+          autoComplete="off"
+          placeholder="INGRESE ID DEL PRODUCTO"
+          value={idProd}
+          onChange={Onchange}
+        />
+        <Box>
           <input
-            type='text'
-            name='id_prod'
-            id='id_prod'
-            className='form-control input_text_index'
-            autoComplete='off'
-            placeholder='INGRESE ID DEL PRODUCTO'
-            value={this.state.id_prod}
-            onChange={this.Onchange}
+            type="text"
+            name="clavProdct"
+            id="clavProdct"
+            className="form-control input_text_index"
+            autoComplete="off"
+            placeholder="INGRESE CLAVE DE PRODUCTO"
+            value={clavProdct}
+            onChange={Onchange}
           />
-          <Box sx={{ display: this.state.PO_ ? 'inherit' : 'none' }}>
-            <input
-              type='text'
-              name='clav_prodct'
-              id='clav_prodct'
-              className='form-control input_text_index'
-              autoComplete='off'
-              placeholder='INGRESE CLAVE DE PRODUCTO'
-              value={this.state.clav_prodct}
-              onChange={this.Onchange}
+        </Box>
+        <input
+          type="text"
+          id="user"
+          name="user"
+          className="form-control input_text_index"
+          placeholder="INGRESE SU USUARIO"
+          value={user}
+          onChange={Onchange}
+        />
+        <input
+          type="password"
+          name="pswLogin"
+          id="pswLogin"
+          className="form-control input_text_index"
+          autoComplete="off"
+          placeholder="INGRESA TU CONTRASEÑA"
+          value={pswLogin}
+          onChange={Onchange}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={PO_}
+              onChange={() => setPO_(!PO_)}
+              name="PO_"
+              color="primary"
             />
-          </Box>
-          <input
-            type='text'
-            id='user'
-            name='user'
-            className='form-control input_text_index'
-            placeholder='INGRESE SU USUARIO'
-            value={this.state.user}
-            onChange={this.Onchange}
-          />
-          <input
-            type='password'
-            name='pswLogin'
-            id='pswLogin'
-            className='form-control input_text_index'
-            autoComplete='off'
-            placeholder='INGRESA TU CONTRASEÑA'
-            value={this.state.pswLogin}
-            onChange={this.Onchange}
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={this.state.PO_}
-                onChange={this.handleChangeSwitch}
-                name='checkedB'
-                color='primary'
-              />
-            }
-            label='Product Owner'
-          />
-          <br /> <br />
-          <br />
-          <input className='btn btn-success' type='submit' value='REGISTRAR' />
-          <br />
-        </form>
+          }
+          label="Product Owner"
+        />
+        <br /> <br />
         <br />
-      </Box>
-    )
-  }
+        <input
+          className="btn btn-success"
+          type="submit"
+          value="REGISTRAR"
+          onClick={EnviarDatosReg}
+        />
+        <br />
+      </form>
+      <br />
+    </Box>
+  );
 }
+Registro.propTypes = {};
+
+export default Registro;
