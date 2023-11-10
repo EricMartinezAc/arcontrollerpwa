@@ -57,30 +57,30 @@ export default class ReqResDatos_auth_API {
     }
   };
 
-  GetAPP = async (auth1, axios) => {
+  GetAPP = async (token, axios) => {
     console.log(`transfiriendo a APP`);
 
     await axios
-      .get(`${pages.remoteAPI}/api/arcontroller/app/dashboard`, {
+      .get(`${pages.localAPI}/api/arcontroller/app/dashboard`, {
         headers: {
-          autorization: `Bearer ${auth1}`,
+          autorization: `Bearer ${token}`,
         },
       })
       .then((resp) => {
         console.log(resp.data.valor);
         setTimeout(() => {
           if (resp.data.valor === 100) {
-            window.location = `${pages.this}/acrcontroller/web/main/Dashboard`;
+            window.location = `${pages.local}/arcontroller/web/main/Dashboard`;
           } else {
             alert(resp.data.msj);
-            window.location = `${pages.this}`;
+            window.location = `${pages.local}`;
           }
         }, 300);
       })
       .catch((err) => {
         alert("Error en generación de token:", err);
         setTimeout(() => {
-          window.location = `${pages.this}`;
+          window.location = `${pages.local}`;
         }, 300);
         console.error("Error :", err);
       });

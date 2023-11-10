@@ -64,13 +64,8 @@ function Login(props) {
               "->",
               RespAPI.msj,
             ]);
-            // await AsigneCookies("token", RespAPI.respt, cookies);
-            // await AsigneCookies("id_prod", id_prod, cookies);
-            // await AsigneCookies("user", user, cookies);
-            // console.log("====================================");
-            // console.log("redireccionando...");
-            // console.log("====================================");
-            // await reqResDatos_auth_API.GetAPP(RespAPI.respt, axios);
+            await AsigneCookies("token", RespAPI.respt, cookies);
+            await reqResDatos_auth_API.GetAPP(cookies.get("token"), axios);
           } else {
             props.setAlertDialogs([
               "block",
@@ -79,11 +74,10 @@ function Login(props) {
               "->",
               RespAPI.msj,
             ]);
+            setTimeout(() => {
+              props.resetWindowsAlertLoading();
+            }, 6000);
           }
-
-          setTimeout(() => {
-            props.resetWindowsAlertLoading();
-          }, 6000);
         }, 2000);
       } catch (error) {
         alert("error enviando datos al servidor, revise su conexion: " + error);
@@ -184,10 +178,8 @@ Login.propTypes = {};
 
 export default Login;
 
-// await AsigneCookies('token', RespAPI.respt, cookies)
 // //               await AsigneCookies('id_prod', id_prod, cookies)
 // //               await AsigneCookies('user', user, cookies)
 // //               console.log('====================================')
 // //               console.log('redireccionando...')
 // //               console.log('====================================')
-// //               await reqResDatos_auth_API.GetAPP(RespAPI.respt, axios)

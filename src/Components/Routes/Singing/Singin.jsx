@@ -43,6 +43,24 @@ function Singin(props) {
   };
   //validar cookies previo
   const rspValideCookies = ValideCookies("Singin", cookies);
+  //valide sesión
+  useEffect(() => {
+    console.log(rspValideCookies);
+    if (rspValideCookies.value) {
+      setStateLoading("block");
+      setAlertDialogs([
+        "block",
+        "info",
+        "validación de sesión",
+        "Sesión activa.",
+        rspValideCookies.msj,
+      ]);
+      setTimeout(() => {
+        resetWindowsAlertLoading();
+        reqResDatos_auth_API.GetAPP(cookies.get("token"), axios);
+      }, 6000);
+    }
+  }, []);
   //valide aceptación de politicas
   useEffect(() => {
     if (typeof cookies.get("aceptLegacy") !== "undefined") {
@@ -55,25 +73,6 @@ function Singin(props) {
       ]);
       setTimeout(() => {
         window.location = pages.local;
-      }, 6000);
-    }
-  }, []);
-  //valide sesión
-  useEffect(() => {
-    if (rspValideCookies.value) {
-      setAlertDialogs([
-        "block",
-        "info",
-        "validación de sesión",
-        "Sesión activa.",
-        rspValideCookies.msj,
-      ]);
-      resetWindowsAlertLoading();
-      setTimeout(() => {
-        setStateLoading("block");
-        setTimeout(() => {
-          reqResDatos_auth_API.GetAPP(cookies.get("token", axios));
-        }, 2000);
       }, 6000);
     }
   }, []);
