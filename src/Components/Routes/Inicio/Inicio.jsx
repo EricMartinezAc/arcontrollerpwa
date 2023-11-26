@@ -41,6 +41,7 @@ function Inicio(props) {
       sameSite: "strict",
       maxAge: 360000,
     });
+    console.log(cookies.getAll());
     setStat_acept_cookies(true);
     setStat_inicio_sesion(true);
     setAlertDialogs([
@@ -50,6 +51,9 @@ function Inicio(props) {
       "Ahora puedes usar al aplicación.",
       "Da clic en inicio de seión para continuar",
     ]);
+    setTimeout(() => {
+      setAlertDialogs(["none", "", "", "", ""]);
+    }, 6000);
   };
   const DenegarCookies = () => {
     setAlertDialogs([
@@ -59,25 +63,15 @@ function Inicio(props) {
       "Lo sentimos, las cookies son necesarias para el funcionamiento del sistema",
       "Puedes ver y usar otros servicios",
     ]);
-  };
-
-  useEffect(() => {
     setTimeout(() => {
       setAlertDialogs(["none", "", "", "", ""]);
     }, 6000);
-  }, [AlertDialogs]);
+  };
 
   useEffect(() => {
     const rspValideCookies = ValideCookies("Inicio", cookies);
-    RestarApp(cookies, ["aceptLegacy", "token", "id_prod"]);
     if (rspValideCookies.routeTarjet === "none") {
-      setAlertDialogs([
-        "block",
-        "info",
-        "Hola!",
-        "Tiene un mensaje de servidor",
-        "Bienvenido a la mejor App para el control de procesos y recursos empresariales",
-      ]);
+      console.log("app segura");
     } else {
       setAlertDialogs([
         "block",

@@ -46,6 +46,7 @@ function Singin(props) {
   //valide sesión
   useEffect(() => {
     console.log(rspValideCookies);
+    console.log(cookies.getAll());
     if (rspValideCookies.value) {
       setStateLoading("block");
       setAlertDialogs([
@@ -63,9 +64,10 @@ function Singin(props) {
   }, []);
   //valide aceptación de politicas
   useEffect(() => {
-    if (typeof cookies.get("aceptLegacy") !== "undefined") {
+    console.log(cookies.getAll());
+    if (typeof cookies.get("aceptLegacy") === "undefined") {
       setAlertDialogs([
-        true,
+        "block",
         "error",
         "APLICACIÓN VERIFICADA",
         "permisos denegados: ",
